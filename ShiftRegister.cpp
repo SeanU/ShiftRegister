@@ -1,18 +1,19 @@
+/* 
+	ShiftRegister.cpp
+	Simple library for controlling a 74HC595 shift register.
+	Created by Sean Underwood, 1 January 2014
+	Released into the public domain.
+*/
+
 #include "ShiftRegister.h"
 
-// Initializes a ShiftRegister.
-// Parameters:
-//   dataPin:  Serial data input. Labeled Ds on the 595
-//   clockPin: Used to trigger reading from the data pin.  
-//             Labeled SHcp on the 595.
-//   latchPin: Used to trigger transferring data from the
-//             shift register to the storage register (output).
-//             Labeled STcp on the 595
-ShiftRegister::ShiftRegister(int dataPin, int clockPin, int latchPin) 
+ShiftRegister::ShiftRegister(uint8_t dataPin, uint8_t clockPin, uint8_t latchPin, 
+														 uint8_t registerCount) 
 {
 	_data = dataPin;
 	_clock = clockPin;
 	_latch = latchPin;
+	_registerCount = registerCount;
 	
 	pinMode(_data, OUTPUT);
 	pinMode(_clock, OUTPUT);
@@ -21,31 +22,42 @@ ShiftRegister::ShiftRegister(int dataPin, int clockPin, int latchPin)
 
 void ShiftRegister::write(char data) 
 {
-	// Set the latch pin low to prepare for updating.
-    digitalWrite(_latch, LOW);
-  
-    // Loop backwards - 595's last output bit is the first one to go in. 
-		for(int i = 7; i >= 0; i--) {
-			
-			// Bring clock LOW to prepare to write a bit	  
-      digitalWrite(_clock, LOW);
-			
-			// Write the bit to the data pin
-      if(data & 0x1 << i) {
-        digitalWrite(_data, HIGH);
-      } else {
-        digitalWrite(_data, LOW);
-      }
-			
-			// Shift register loads the data when the clock pin goes HIGH.
-      digitalWrite(_clock, HIGH);
+	write(&data, 1);
+}
 
-			// Not sure this is necessary - the ShiftOut tutorial
-			// does it "to prevent bleed through"
-      // digitalWrite(ds, LOW);
-    }
+void ShiftRegister::write(char* data)
+{
+	write(data, _registerCount);
+}
+
+void ShiftRegister::write(char* data, uint8_t count)
+{
+	// Set the latch pin low to prepare for updating.
+  digitalWrite(_latch, LOW);
+
+	// Loop backwards - last 595 chip gets the first data to go in.
+	for(uint8_t j = count - 1; j >= 0; j--)
+	{
+	  // Loop backwards - 595's last output bit is the first one to go in. 
+		for(uint8_t i = 7; i >= 0; i--) {
 		
-		// Shift register contents get sent to the 595's output pins
-		// when latch goes HIGH.
-    digitalWrite(_latch, HIGH);
+			// Bring clock LOW to prepare to write a bit	  
+	    digitalWrite(_clock, LOW);
+		
+			// Write the bit to the data pin
+	    if(data[j] & 0x1 << i) {
+	      digitalWrite(_data, HIGH);
+	    } else {
+	      digitalWrite(_data, LOW);
+	    }
+		
+			// Shift register loads the data when the clock pin goes HIGH.
+	    digitalWrite(_clock, HIGH);
+
+	  }
+	}
+	
+	// Shift register contents get sent to the 595's output pins
+	// when latch goes HIGH.
+  digitalWrite(_latch, HIGH);
 }

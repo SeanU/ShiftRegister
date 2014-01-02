@@ -2,6 +2,7 @@
 	ShiftRegister.h
 	Simple library for controlling a 74HC595 shift register.
 	Created by Sean Underwood, 1 January 2014
+	Released into the public domain.
 	
 	Usage:
 		Initialize by creating an instance and specifying the pins
@@ -17,12 +18,6 @@
 
 	 	The MR pin is not supported.  Similar behavior can be achieved by
 		calling ShiftRegister.write(0);
-
-		The libary is not aware that the 74HC595 can be daisy chained, but
-		can still be used to drive a set of them operating in series.  
-	 	However, since it always flashes the latch pin to HIGH after writing
-		a byte, some flickering will occur while data is being pushed through
-		the registers.
 */
 
 #ifndef __SHIFTREGISTER_H
@@ -40,15 +35,30 @@ public:
 	//   latchPin: Used to trigger transferring data from the
 	//             shift register to the storage register (output).
 	//             Labeled STcp on the 595
-	ShiftRegister(int dataPin, int clockPin, int latchPin);
+	//	 registerCount:  Number of daisy-chained shift registers
+	//							being controlled.  Default is 1.
+	ShiftRegister(uint8_t dataPin, uint8_t clockPin, uint8_t latchPin, 
+								uint8_t registerCount = 1);
 	
 	// Writes data to the shfit register.
 	// Parameters:
 	//	 data:	A bitfield of data to send to the shift register.
 	//					Least significant bit gets written to output in Q0.
 	void write(char data);
+		
+	// Writes data to the shfit register.
+	// Parameters:
+	//	 data:	An array of bitfields of data to send to the register.
+	//				The length of the array should be equal to the number
+	//				of shift registers configured in the contstructor.
+	//				The contents of the first element in the array get written
+	//				to the first register in the chain.
+	void write(char* data);
+
 private:
-	int _data, _clock, _latch;
+	uint8_t _data, _clock, _latch, _registerCount;
+	
+	void write(char* data, uint8_t count);
 };
 
 
