@@ -44,7 +44,7 @@ public:
 	// Parameters:
 	//	 data:	A bitfield of data to send to the shift register.
 	//					Least significant bit gets written to output in Q0.
-	void write(char data);
+	void write(byte data);
 		
 	// Writes data to the shfit register.
 	// Parameters:
@@ -53,12 +53,12 @@ public:
 	//				of shift registers configured in the contstructor.
 	//				The contents of the first element in the array get written
 	//				to the first register in the chain.
-	void write(char* data);
+	void write(byte* data);
 
 private:
 	uint8_t _data, _clock, _latch, _registerCount;
 	
-	void write(char* data, uint8_t count);
+	void write(byte* data, uint8_t count);
 };
 
 

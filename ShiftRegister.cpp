@@ -7,8 +7,8 @@
 
 #include "ShiftRegister.h"
 
-ShiftRegister::ShiftRegister(uint8_t dataPin, uint8_t clockPin, uint8_t latchPin, 
-														 uint8_t registerCount) 
+ShiftRegister::ShiftRegister(uint8_t dataPin, uint8_t clockPin, uint8_t latchPin,
+	 													 uint8_t registerCount) 
 {
 	_data = dataPin;
 	_clock = clockPin;
@@ -20,26 +20,26 @@ ShiftRegister::ShiftRegister(uint8_t dataPin, uint8_t clockPin, uint8_t latchPin
 	pinMode(_latch, OUTPUT);
 }
 
-void ShiftRegister::write(char data) 
+void ShiftRegister::write(byte data) 
 {
 	write(&data, 1);
 }
 
-void ShiftRegister::write(char* data)
+void ShiftRegister::write(byte* data)
 {
 	write(data, _registerCount);
 }
 
-void ShiftRegister::write(char* data, uint8_t count)
+void ShiftRegister::write(byte* data, uint8_t count)
 {
 	// Set the latch pin low to prepare for updating.
   digitalWrite(_latch, LOW);
 
 	// Loop backwards - last 595 chip gets the first data to go in.
-	for(uint8_t j = count - 1; j >= 0; j--)
+	for(char j = count - 1; j >= 0; j--)
 	{
 	  // Loop backwards - 595's last output bit is the first one to go in. 
-		for(uint8_t i = 7; i >= 0; i--) {
+		for(char i = 7; i >= 0; i--) {
 		
 			// Bring clock LOW to prepare to write a bit	  
 	    digitalWrite(_clock, LOW);
